@@ -1,11 +1,11 @@
-// Renders Doppio's app icon into Resources/AppIcon.icns from Resources/IconSource.png.
-// Usage: swift Scripts/make-icon.swift [preview.png]
+// Renders Doppio's app icon into assets/AppIcon.icns from assets/icon-source.png.
+// Usage: swift scripts/make-icon.swift [preview.png]
 import AppKit
 
 let canvas: CGFloat = 1024
 let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-let resources = root.appendingPathComponent("Resources")
-let source = NSImage(contentsOf: resources.appendingPathComponent("IconSource.png"))!
+let assets = root.appendingPathComponent("assets")
+let source = NSImage(contentsOf: assets.appendingPathComponent("icon-source.png"))!
 /// Square region of the source photo (in its own points, origin bottom-left) framed around the cup.
 let crop = NSRect(x: 232, y: 80, width: 1040, height: 1040)
 
@@ -55,13 +55,12 @@ for points in [16, 32, 128, 256, 512] {
     try! png(render(pixels: points)).write(to: iconset.appendingPathComponent("icon_\(points)x\(points).png"))
     try! png(render(pixels: points * 2)).write(to: iconset.appendingPathComponent("icon_\(points)x\(points)@2x.png"))
 }
-try! FileManager.default.createDirectory(at: resources, withIntermediateDirectories: true)
 let iconutil = Process()
 iconutil.executableURL = URL(fileURLWithPath: "/usr/bin/iconutil")
-iconutil.arguments = ["-c", "icns", iconset.path, "-o", resources.appendingPathComponent("AppIcon.icns").path]
+iconutil.arguments = ["-c", "icns", iconset.path, "-o", assets.appendingPathComponent("AppIcon.icns").path]
 try! iconutil.run()
 iconutil.waitUntilExit()
 if CommandLine.arguments.count > 1 {
     try! png(render(pixels: 1024)).write(to: URL(fileURLWithPath: CommandLine.arguments[1]))
 }
-print(iconutil.terminationStatus == 0 ? "Wrote Resources/AppIcon.icns" : "iconutil failed")
+print(iconutil.terminationStatus == 0 ? "Wrote assets/AppIcon.icns" : "iconutil failed")
